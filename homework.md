@@ -1,2 +1,2 @@
- - create a repository
+ - create git repository
  - 
