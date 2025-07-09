@@ -1,2 +1,2 @@
  - create git repository
- - 
+ - create server
