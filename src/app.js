@@ -2,6 +2,8 @@ const express = require("express");
 const { adminAuth } = require("./middlewares/admin");
 const { userAuth } = require("./middlewares/user");
 
+const connectDB = require("./config/database");
+
 const app = express();
 
 // app.use("/", (req, res) =>{  //! it will override the paths
@@ -51,6 +53,19 @@ app.get("/admin/deleteUser", adminAuth, (req, res) =>{
 
 
 
-app.listen(4000, ()=>{
-    console.log("Server is successfully listening on 4000 port...");
-});
+
+
+// app.listen(4000, ()=>{
+//     console.log("Server is successfully listening on 4000 port...");
+// });
+
+// Good way : if DB connected successfully, then allow server to access 
+connectDB().then(()=>{
+    console.log("database connection is estabtished...");
+    app.listen(4000, () => {
+        console.log("Server is successfully listening on 4000 port...");
+    })
+}).catch(err => {
+    console.error("database not be connected!!")
+})
+
