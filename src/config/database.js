@@ -9,7 +9,7 @@ const mongoose = require("mongoose");
 // Good way to connect to DB  (it'll give the promise)
 const connectDB = async () => {
   await mongoose.connect(
-    "mongodb+srv://Nitesh:twvqya7DFg2GN0od@cluster0.by3xf.mongodb.net/"
+    "mongodb+srv://Nitesh:twvqya7DFg2GN0od@cluster0.by3xf.mongodb.net/devTinder"
   );
 };
 

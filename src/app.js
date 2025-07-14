@@ -3,69 +3,38 @@ const { adminAuth } = require("./middlewares/admin");
 const { userAuth } = require("./middlewares/user");
 
 const connectDB = require("./config/database");
+const User = require("./models/user");
 
 const app = express();
 
-// app.use("/", (req, res) =>{  //! it will override the paths
-//     res.send("Namaste from the Dashbord!");
-// });
+app.post("/signUp", async (req, res) => {
+  const userObj = new User({
+    firstName: "Akshay",
+    lastName: "saini",
+    emailId: "as123@gmail.com",
+    password: "4575",
+  });
 
-//! order of routes is very important
-
-//? this is match all the HTTP method API calls to /test
-// app.use("/test", (req, res) => {
-//     res.send("Hello from the server!");
-// });
-
-//? This will only handle GET call to /user
-// app.get("/user", (req, res) =>{
-//     res.send({firstName: "Nitesh", lastName: "Kumar"})
-// })
-
-
-
-//! middleware (Handle auth. middlewares for all GET, POST, ... requests)
-// app.use("/admin", (req, res, next) => {
-//   console.log("Admin auth. is getting checked!!");
-//   const tokan = "xyz";
-//   const isAdminAuthorized = tokan === "xyz";
-//   if (!isAdminAuthorized) {
-//     res.status(401).send("Unauthorized Admin!");
-//   } else {
-//     next();
-//   }
-// })
-   //?  OR
-// app.use("/admin", adminAuth);
-
-app.get("/user", userAuth, (req, res) =>{
-    res.send("User data send!")
-})
-
-app.get("/admin/getAllData", adminAuth, (req, res) =>{
-    res.send("All data...")
-})
-
-app.get("/admin/deleteUser", adminAuth, (req, res) =>{
-    res.send("User deleted!")
-})
-
-
-
-
-
+  try {
+    await userObj.save();
+    res.send("user added successfully!!");
+  } catch (err) {
+    res.status(400).send("Error saving the user" + err.message);
+  }
+});
 
 // app.listen(4000, ()=>{
 //     console.log("Server is successfully listening on 4000 port...");
 // });
 
-// Good way : if DB connected successfully, then allow server to access 
-connectDB().then(()=>{
+// Good way : if DB connected successfully, then allow server to access
+connectDB()
+  .then(() => {
     console.log("database connection is estabtished...");
     app.listen(4000, () => {
-        console.log("Server is successfully listening on 4000 port...");
-    })
-}).catch(err => {
-    console.error("database not be connected!!")
-})
-
+      console.log("Server is successfully listening on 4000 port...");
+    });
+  })
+  .catch((err) => {
+    console.error("database not be connected!!");
+  });
