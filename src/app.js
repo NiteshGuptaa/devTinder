@@ -7,13 +7,22 @@ const User = require("./models/user");
 
 const app = express();
 
+//it's a middleware, express provide us to parse json data & convert it in js Obj (middleware -> app.use())
+app.use(express.json());
+
 app.post("/signUp", async (req, res) => {
-  const userObj = new User({
-    firstName: "Akshay",
-    lastName: "saini",
-    emailId: "as123@gmail.com",
-    password: "4575",
-  });
+  console.log(req.body);
+  const userData = req.body;
+  // Creating a new instanse of User model
+  const userObj = new User(userData);
+  console.log(userObj);
+
+  //   const userObj = new User({
+  //     firstName: "Akshay",
+  //     lastName: "saini",
+  //     emailId: "as123@gmail.com",
+  //     password: "4575",
+  //   });
 
   try {
     await userObj.save();
@@ -21,6 +30,33 @@ app.post("/signUp", async (req, res) => {
   } catch (err) {
     res.status(400).send("Error saving the user" + err.message);
   }
+});
+
+// Get user by email
+app.get("/user", async (req, res) => {
+  const userEmail = req.body.emailId;
+
+  try {
+    const users = await User.find({ emailId: userEmail });
+    if (users.length === 0) {
+      res.status(404).send("User not found!!");
+    } else {
+      res.send(users);
+    }
+  } catch (error) {
+    res.status(400).send("Something went wrong");
+  }
+});
+
+// Feed API - GET /feed - get all users from the database
+app.get("/feed", async (req, res) => {
+    try {
+        // if we pass empty Obj{} inside find we get all data from DB
+        const users = await User.find({})
+        res.send(users);
+    } catch (error) {
+        res.status(400).send("Something went wrong!!")
+    }
 });
 
 // app.listen(4000, ()=>{
