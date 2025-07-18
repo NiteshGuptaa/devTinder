@@ -90,6 +90,9 @@ app.delete("/user", async (req, res) => {
 // Update data of the user by emailId
 app.patch("/user", async (req, res) => {
   const { emailId, ...updateData } = req.body;
+// app.patch("/user/:emailId", async (req, res) => {
+  // const emailId = req.params?.emailId;
+  // const updateData = req.body;
   console.log("PATCH /user called with:", req.body);
 
   if (!emailId) {
@@ -97,6 +100,13 @@ app.patch("/user", async (req, res) => {
   }
 
   try {
+    const ALLOWED_UPDATES = ["about", "gender", "age", "skills"];
+    const isUpdateAllowed = Object.keys(updateData).every((k)=> 
+       ALLOWED_UPDATES.includes(k)
+    );
+    if(!isUpdateAllowed){
+      throw new Error("Update not allowed!!")
+    }
     const updatedUser = await User.findOneAndUpdate(
       { emailId: emailId },
       { $set: updateData },
