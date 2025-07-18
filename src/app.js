@@ -50,14 +50,71 @@ app.get("/user", async (req, res) => {
 
 // Feed API - GET /feed - get all users from the database
 app.get("/feed", async (req, res) => {
-    try {
-        // if we pass empty Obj{} inside find we get all data from DB
-        const users = await User.find({})
-        res.send(users);
-    } catch (error) {
-        res.status(400).send("Something went wrong!!")
-    }
+  try {
+    // if we pass empty Obj{} inside find we get all data from DB
+    const users = await User.find({});
+    res.send(users);
+  } catch (error) {
+    res.status(400).send("Something went wrong!!");
+  }
 });
+
+// Delete a user from the database
+app.delete("/user", async (req, res) => {
+  const userId = req.body.userId;
+  try {
+    const user = await User.findByIdAndDelete({ _id: userId });
+    // const user = await User.findByIdAndDelete(userId);  // Both are same
+    console.log(user);
+    res.send("User deleted successfully!!");
+  } catch (error) {
+    res.status(400).send("Something went wrong!!");
+  }
+});
+
+// Update data of the user
+// app.patch("/user", async (req, res) => {
+//   const userId = req.body.userId;
+//   const data = req.body;
+//   try {
+//     // it'll update only the things which declered in schema
+//     // await User.findByIdAndUpdate({ _id: userId }, data);
+//     await User.findByIdAndUpdate( userId, data, {runValidators: true}); // allowing valdation for patch API 
+//     res.send("User updated successfully!!");
+//   } catch (error) {
+//     console.error("Error updating user:", error);
+//     res.status(400).send("Somthing went wrong!!");
+//   }
+// });
+
+// Update data of the user by emailId
+app.patch("/user", async (req, res) => {
+  const { emailId, ...updateData } = req.body;
+  console.log("PATCH /user called with:", req.body);
+
+  if (!emailId) {
+    return res.status(400).send("Email is required!");
+  }
+
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { emailId: emailId },
+      { $set: updateData },
+      { new: true, runValidators: true}
+    );
+
+    if (!updatedUser) {
+      return res.status(404).send("User not found!");
+    }
+
+    res.send("User updated successfully!!");
+  } catch (error) {
+    console.error("Error updating user:", error); // full error object
+    res.status(500).send("Something went wrong!!");
+  }
+});
+
+
 
 // app.listen(4000, ()=>{
 //     console.log("Server is successfully listening on 4000 port...");
