@@ -1,9 +1,11 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
 const { adminAuth } = require("./middlewares/admin");
 const { userAuth } = require("./middlewares/user");
 
 const connectDB = require("./config/database");
 const User = require("./models/user");
+const { validateSignUpData } = require("./utils/validation");
 
 const app = express();
 
@@ -11,24 +13,53 @@ const app = express();
 app.use(express.json());
 
 app.post("/signUp", async (req, res) => {
-  console.log(req.body);
-  const userData = req.body;
-  // Creating a new instanse of User model
-  const userObj = new User(userData);
-  console.log(userObj);
-
-  //   const userObj = new User({
-  //     firstName: "Akshay",
-  //     lastName: "saini",
-  //     emailId: "as123@gmail.com",
-  //     password: "4575",
-  //   });
-
   try {
+    const { firstName, lastName, emailId, password } = req.body;
+
+    validateSignUpData(req.body);
+
+    // encrypt the passwor
+    const hashPassword = await bcrypt.hash(password, 10);
+    console.log(hashPassword);
+
+    // Creating a new instanse of User model
+    const userObj = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: hashPassword,
+    });
+    console.log(userObj);
+
+    //   const userObj = new User({
+    //     firstName: "Akshay",
+    //     lastName: "saini",
+    //     emailId: "as123@gmail.com",
+    //     password: "4575",
+    //   });
     await userObj.save();
     res.send("user added successfully!!");
   } catch (err) {
     res.status(400).send("Error saving the user" + err.message);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("Invalid credentials!");
+    }
+    const isValidePassword = await bcrypt.compare(password, user.password);
+    if (isValidePassword) {
+      res.send("Login successfully!");
+    } else {
+      throw new Error("Invalid credentials!!");
+    }
+  } catch (error) {
+    res.status(400).send("Error: " + error.message);
   }
 });
 
@@ -79,7 +110,7 @@ app.delete("/user", async (req, res) => {
 //   try {
 //     // it'll update only the things which declered in schema
 //     // await User.findByIdAndUpdate({ _id: userId }, data);
-//     await User.findByIdAndUpdate( userId, data, {runValidators: true}); // allowing valdation for patch API 
+//     await User.findByIdAndUpdate( userId, data, {runValidators: true}); // allowing valdation for patch API
 //     res.send("User updated successfully!!");
 //   } catch (error) {
 //     console.error("Error updating user:", error);
@@ -90,7 +121,7 @@ app.delete("/user", async (req, res) => {
 // Update data of the user by emailId
 app.patch("/user", async (req, res) => {
   const { emailId, ...updateData } = req.body;
-// app.patch("/user/:emailId", async (req, res) => {
+  // app.patch("/user/:emailId", async (req, res) => {
   // const emailId = req.params?.emailId;
   // const updateData = req.body;
   console.log("PATCH /user called with:", req.body);
@@ -101,16 +132,16 @@ app.patch("/user", async (req, res) => {
 
   try {
     const ALLOWED_UPDATES = ["about", "gender", "age", "skills"];
-    const isUpdateAllowed = Object.keys(updateData).every((k)=> 
-       ALLOWED_UPDATES.includes(k)
+    const isUpdateAllowed = Object.keys(updateData).every((k) =>
+      ALLOWED_UPDATES.includes(k)
     );
-    if(!isUpdateAllowed){
-      throw new Error("Update not allowed!!")
+    if (!isUpdateAllowed) {
+      throw new Error("Update not allowed!!");
     }
     const updatedUser = await User.findOneAndUpdate(
       { emailId: emailId },
       { $set: updateData },
-      { new: true, runValidators: true}
+      { new: true, runValidators: true }
     );
 
     if (!updatedUser) {
@@ -123,8 +154,6 @@ app.patch("/user", async (req, res) => {
     res.status(500).send("Something went wrong!!");
   }
 });
-
-
 
 // app.listen(4000, ()=>{
 //     console.log("Server is successfully listening on 4000 port...");
