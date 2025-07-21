@@ -6,11 +6,14 @@ const { userAuth } = require("./middlewares/user");
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const { validateSignUpData } = require("./utils/validation");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 
 //it's a middleware, express provide us to parse json data & convert it in js Obj (middleware -> app.use())
 app.use(express.json());
+app.use(cookieParser()); // it is also a middleware , it help to read cookie
 
 app.post("/signUp", async (req, res) => {
   try {
@@ -54,10 +57,37 @@ app.post("/login", async (req, res) => {
     }
     const isValidePassword = await bcrypt.compare(password, user.password);
     if (isValidePassword) {
+      // Create a JWT token
+      const token = await jwt.sign({ _id: user._id }, "dev@TinderSecretKey");
+
+      // add the token to cookie and send the respose back to user
+      res.cookie("token", token);
       res.send("Login successfully!");
     } else {
       throw new Error("Invalid credentials!!");
     }
+  } catch (error) {
+    res.status(400).send("Error: " + error.message);
+  }
+});
+
+app.get("/profile", async (req, res) => {
+  try {
+    const cookies = req.cookies;
+    const { token } = cookies;
+    if(!token){
+      throw new Error("Invalid token!!");
+    }
+    // Validate Token
+    const decodedMessage = await jwt.verify(token, "dev@TinderSecretKey");
+    // console.log(decodedMessage);
+    const { _id } = decodedMessage;
+    // console.log("Logged In user is: " + _id);
+    const user = await User.findById(_id);
+    if(!user){
+      throw new Error("User does not Exist!")
+    }
+    res.send(user);
   } catch (error) {
     res.status(400).send("Error: " + error.message);
   }
