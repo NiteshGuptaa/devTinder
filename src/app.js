@@ -58,10 +58,14 @@ app.post("/login", async (req, res) => {
     const isValidePassword = await bcrypt.compare(password, user.password);
     if (isValidePassword) {
       // Create a JWT token
-      const token = await jwt.sign({ _id: user._id }, "dev@TinderSecretKey");
+      const token = await jwt.sign({ _id: user._id }, "dev@TinderSecretKey", {
+        expiresIn: "1d",
+      });
 
       // add the token to cookie and send the respose back to user
-      res.cookie("token", token);
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 8 * 3600000),
+      });
       res.send("Login successfully!");
     } else {
       throw new Error("Invalid credentials!!");
@@ -71,22 +75,9 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile", async (req, res) => {
+app.get("/profile", userAuth, async (req, res) => {
   try {
-    const cookies = req.cookies;
-    const { token } = cookies;
-    if(!token){
-      throw new Error("Invalid token!!");
-    }
-    // Validate Token
-    const decodedMessage = await jwt.verify(token, "dev@TinderSecretKey");
-    // console.log(decodedMessage);
-    const { _id } = decodedMessage;
-    // console.log("Logged In user is: " + _id);
-    const user = await User.findById(_id);
-    if(!user){
-      throw new Error("User does not Exist!")
-    }
+    const user = req.user;
     res.send(user);
   } catch (error) {
     res.status(400).send("Error: " + error.message);
