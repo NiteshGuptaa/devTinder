@@ -15,77 +15,85 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser()); // it is also a middleware , it help to read cookie
 
-app.post("/signUp", async (req, res) => {
-  try {
-    const { firstName, lastName, emailId, password } = req.body;
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestRouter = require('./routes/requests');
 
-    validateSignUpData(req.body);
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
 
-    // encrypt the passwor
-    const hashPassword = await bcrypt.hash(password, 10);
-    console.log(hashPassword);
+// app.post("/signUp", async (req, res) => {
+//   try {
+//     const { firstName, lastName, emailId, password } = req.body;
 
-    // Creating a new instanse of User model
-    const userObj = new User({
-      firstName,
-      lastName,
-      emailId,
-      password: hashPassword,
-    });
-    console.log(userObj);
+//     validateSignUpData(req.body);
 
-    //   const userObj = new User({
-    //     firstName: "Akshay",
-    //     lastName: "saini",
-    //     emailId: "as123@gmail.com",
-    //     password: "4575",
-    //   });
-    await userObj.save();
-    res.send("user added successfully!!");
-  } catch (err) {
-    res.status(400).send("Error saving the user" + err.message);
-  }
-});
+//     // encrypt the passwor
+//     const hashPassword = await bcrypt.hash(password, 10);
+//     console.log(hashPassword);
 
-app.post("/login", async (req, res) => {
-  try {
-    const { emailId, password } = req.body;
+//     // Creating a new instanse of User model
+//     const userObj = new User({
+//       firstName,
+//       lastName,
+//       emailId,
+//       password: hashPassword,
+//     });
+//     console.log(userObj);
 
-    const user = await User.findOne({ emailId: emailId });
-    if (!user) {
-      throw new Error("Invalid credentials!");
-    }
-    const isValidePassword = await bcrypt.compare(password, user.password);
-    if (isValidePassword) {
-      // Create a JWT token
-      // const token = await jwt.sign({ _id: user._id }, "dev@TinderSecretKey", {
-      //   expiresIn: "1d",
-      // });
+//     //   const userObj = new User({
+//     //     firstName: "Akshay",
+//     //     lastName: "saini",
+//     //     emailId: "as123@gmail.com",
+//     //     password: "4575",
+//     //   });
+//     await userObj.save();
+//     res.send("user added successfully!!");
+//   } catch (err) {
+//     res.status(400).send("Error saving the user" + err.message);
+//   }
+// });
 
-      // offloading to schema  
-      const token = await user.getJWT();
+// app.post("/login", async (req, res) => {
+//   try {
+//     const { emailId, password } = req.body;
 
-      // add the token to cookie and send the respose back to user
-      res.cookie("token", token, {
-        expires: new Date(Date.now() + 8 * 3600000),
-      });
-      res.send("Login successfully!");
-    } else {
-      throw new Error("Invalid credentials!!");
-    }
-  } catch (error) {
-    res.status(400).send("Error: " + error.message);
-  }
-});
+//     const user = await User.findOne({ emailId: emailId });
+//     if (!user) {
+//       throw new Error("Invalid credentials!");
+//     }
+//     const isValidePassword = await bcrypt.compare(password, user.password);
+//     if (isValidePassword) {
+//       // Create a JWT token
+//       // const token = await jwt.sign({ _id: user._id }, "dev@TinderSecretKey", {
+//       //   expiresIn: "1d",
+//       // });
 
-app.get("/profile", userAuth, async (req, res) => {
-  try {
-    const user = req.user;
-    res.send(user);
-  } catch (error) {
-    res.status(400).send("Error: " + error.message);
-  }
-});
+//       // offloading to schema  
+//       const token = await user.getJWT();
+
+//       // add the token to cookie and send the respose back to user
+//       res.cookie("token", token, {
+//         expires: new Date(Date.now() + 8 * 3600000),
+//       });
+//       res.send("Login successfully!");
+//     } else {
+//       throw new Error("Invalid credentials!!");
+//     }
+//   } catch (error) {
+//     res.status(400).send("Error: " + error.message);
+//   }
+// });
+
+// app.get("/profile", userAuth, async (req, res) => {
+//   try {
+//     const user = req.user;
+//     res.send(user);
+//   } catch (error) {
+//     res.status(400).send("Error: " + error.message);
+//   }
+// });
 
 // Get user by email
 app.get("/user", async (req, res) => {
