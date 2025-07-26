@@ -1,9 +1,9 @@
 const express = require("express");
 const { validateSignUpData } = require("../utils/validation");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const User = require("../models/user");
-const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser')
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 
 const authRouter = express.Router();
 
@@ -57,7 +57,7 @@ authRouter.post("/login", async (req, res) => {
       //   expiresIn: "1d",
       // });
 
-      // offloading to schema  
+      // offloading to schema
       const token = await user.getJWT();
 
       // add the token to cookie and send the respose back to user
@@ -73,5 +73,12 @@ authRouter.post("/login", async (req, res) => {
   }
 });
 
+authRouter.post("/logout", async (req, res) => {
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+  });
+
+  res.send("Logout successfully!!");
+});
 
 module.exports = authRouter;

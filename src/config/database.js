@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 // );
 
 
-// Good way to connect to DB  (it'll give the promise)
+// Good way to connect to DB  (it'll return promise)
 const connectDB = async () => {
   await mongoose.connect(
     "mongodb+srv://Nitesh:twvqya7DFg2GN0od@cluster0.by3xf.mongodb.net/devTinder"
