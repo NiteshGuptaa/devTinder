@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       minLength: 4,
       maxLength: 50,
+      // index: true,   // indexing for fast searching, query faster
     },
     lastName: {
       type: String,
@@ -18,7 +19,7 @@ const userSchema = new mongoose.Schema(
     emailId: {
       type: String,
       required: true,
-      unique: true,
+      unique: true,   // it's automatically creates an index
       trim: true,
       validate(value) {
         if (!validator.isEmail(value)) {

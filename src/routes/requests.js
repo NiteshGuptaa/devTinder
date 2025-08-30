@@ -29,7 +29,7 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
 
         const isValideUser = await User.findById( toUserId );
         if(!isValideUser){
-            return res.status(404).json({message: "Invalide User!"});
+            return res.status(404).send("Invalide user!")
         }
 
         const existingConnectionRequest = await ConnectionRequest.findOne({
@@ -42,7 +42,7 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
             ]
         })
         if(existingConnectionRequest){
-            res.status(400).send("Connection Request already Exists!")
+            return res.status(400).send("Connection Request already Exists!")
         }
         
         const connectionRequest = new ConnectionRequest({
@@ -53,11 +53,11 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
 
         const data = await connectionRequest.save();
         res.send({
-            message: "Connection Request Sent Successfully!",
+            message: req.user.firstName + " Connection Request Sent Successfully!",
             data
         })
     } catch (error) {
-        res.status(400).send("ERROR: " + message)
+        res.status(400).send("ERROR: " + error.message)
     }
 })
 
