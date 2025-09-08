@@ -114,15 +114,15 @@ app.get("/user", async (req, res) => {
 });
 
 // Feed API - GET /feed - get all users from the database
-app.get("/feed", async (req, res) => {
-  try {
-    // if we pass empty Obj{} inside find we get all data from DB
-    const users = await User.find({});
-    res.send(users);
-  } catch (error) {
-    res.status(400).send("Something went wrong!!");
-  }
-});
+// app.get("/feed", async (req, res) => {
+//   try {
+//     // if we pass empty Obj{} inside find we get all data from DB
+//     const users = await User.find({});
+//     res.send(users);
+//   } catch (error) {
+//     res.status(400).send("Something went wrong!!");
+//   }
+// });
 
 // Delete a user from the database
 app.delete("/user", async (req, res) => {
