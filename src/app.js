@@ -8,12 +8,18 @@ const User = require("./models/user");
 const { validateSignUpData } = require("./utils/validation");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const cors = require("cors")
 
 const app = express();
 
 //it's a middleware, express provide us to parse json data & convert it in js Obj (middleware -> app.use())
 app.use(express.json());
 app.use(cookieParser()); // it is also a middleware , it help to read cookie
+
+app.use(cors({
+  origin: "http://localhost:5173", // allow to access the server from this origin
+  credentials: true, // allow to send cookies from frontend to backend
+}))
 
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
