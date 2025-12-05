@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
     emailId: {
       type: String,
       required: true,
-      unique: true,   // it's automatically creates an index
+      unique: true, // it's automatically creates an index
       trim: true,
       validate(value) {
         if (!validator.isEmail(value)) {
@@ -30,6 +30,11 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+    },
+    photoURL: {
+      type: String,
+      default:
+        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
     },
     age: {
       type: Number,

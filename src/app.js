@@ -8,7 +8,7 @@ const User = require("./models/user");
 const { validateSignUpData } = require("./utils/validation");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
-const cors = require("cors")
+const cors = require("cors");
 
 const app = express();
 
@@ -16,15 +16,17 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser()); // it is also a middleware , it help to read cookie
 
-app.use(cors({
-  origin: "http://localhost:5173", // allow to access the server from this origin
-  credentials: true, // allow to send cookies from frontend to backend
-}))
+app.use(
+  cors({
+    origin: "http://localhost:5173", // allow to access the server from this origin
+    credentials: true, // allow to send cookies from frontend to backend
+  })
+);
 
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
-const requestRouter = require('./routes/requests');
-const userRouter  = require("./routes/user");
+const requestRouter = require("./routes/requests");
+const userRouter = require("./routes/user");
 
 app.use("/", authRouter);
 app.use("/", profileRouter);
@@ -78,7 +80,7 @@ app.use("/", userRouter);
 //       //   expiresIn: "1d",
 //       // });
 
-//       // offloading to schema  
+//       // offloading to schema
 //       const token = await user.getJWT();
 
 //       // add the token to cookie and send the respose back to user

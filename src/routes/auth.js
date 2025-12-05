@@ -12,7 +12,7 @@ authRouter.use(cookieParser());
 
 authRouter.post("/signUp", async (req, res) => {
   try {
-    const { firstName, lastName, emailId, password } = req.body; 
+    const { firstName, lastName, emailId, password, photoURL } = req.body;
 
     validateSignUpData(req.body);
 
@@ -24,6 +24,7 @@ authRouter.post("/signUp", async (req, res) => {
     const userObj = new User({
       firstName,
       lastName,
+      photoURL,
       emailId,
       password: hashPassword,
     });
